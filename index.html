@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倪海厦资料下载站</title>
+    <style>
+        /* 消除浏览器默认边距，锁定屏幕不可滚动 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        /* 强制容器尺寸为标准的 1920 * 1200 全屏 */
+        .container {
+            position: relative;
+            width: 1920px;
+            height: 1200px;
+            transform-origin: top left;
+            background-image: url('bg.png'); /* 主背景图 */
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        /* 透明的点击热区 */
+        .click-area {
+            position: absolute;
+            background: transparent; /* 完全透明 */
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* 1920*1200 分辨率下，精准覆盖原图“了解更多”区域 */
+        .area-learn-more {
+            left: 20px;
+            bottom: 38px;
+            width: 615px;
+            height: 155px;
+        }
+        /* 1920*1200 分辨率下，精准覆盖原图“免费下载”区域 */
+        .area-download-btn {
+            right: 20px;
+            top: 366px;
+            width: 556px;
+            height: 193px;
+        }
+        /* 1920*1200 分辨率下，精准覆盖原图右下角列表区域 */
+        .area-books-list {
+            right: 20px;
+            top: 570px;
+            width: 460px;
+            height: 580px;
+        }
+
+        /* 全屏图片查看层（默认隐藏） */
+        #fullscreenImageLayer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 99999;
+            cursor: pointer;
+        }
+        #fullscreenImageLayer img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 保证图片不变形展示，如需强行拉伸满屏可改为 100% 100% */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 主容器页面 -->
+    <div class="container" id="mainContainer">
+        <!-- 点击左下角“了解更多”：触发全屏看图 -->
+        <div class="click-area area-learn-more" onclick="openImageFullscreen()"></div>
+
+        <!-- 点击右上角“免费下载” -->
+        <div class="click-area area-download-btn" onclick="triggerDownload()"></div>
+
+        <!-- 点击右下角列表 -->
+        <div class="click-area area-books-list" onclick="triggerDownload()"></div>
+    </div>
+
+    <!-- 专门用来全屏显示 无标题.png 的独立图层 -->
+    <div id="fullscreenImageLayer" onclick="closeImageFullscreen()">
+        <img src="无标题.png" alt="无标题">
+    </div>
+
+    <script>
+        // 动态自适应脚本：确保背景图等比例缩放至 1920*1200 的全屏效果
+        function resizeContainer() {
+            const container = document.getElementById('mainContainer');
+            const targetWidth = 1920;
+            const targetHeight = 1200;
+            
+            const scaleX = window.innerWidth / targetWidth;
+            const scaleY = window.innerHeight / targetHeight;
+            
+            container.style.transform = `scale(${scaleX}, ${scaleY})`;
+        }
+
+        window.addEventListener('resize', resizeContainer);
+        window.addEventListener('DOMContentLoaded', resizeContainer);
+
+        // 点击“了解更多”：让整个网页进入真全屏，并把【无标题.png】铺满屏幕显示出来
+        function openImageFullscreen() {
+            const docElm = document.documentElement;
+            
+            // 激活浏览器的原生全屏（用户点击了“了解更多”属于主动交互，浏览器允许全屏）
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            } else if (docElm.mozRequestFullScreen) {
+                docElm.mozRequestFullScreen();
+            } else if (docElm.webkitRequestFullScreen) {
+                docElm.webkitRequestFullScreen();
+            } else if (docElm.msRequestFullscreen) {
+                docElm.msRequestFullscreen();
+            }
+
+            // 显示全屏图片遮罩层
+            document.getElementById('fullscreenImageLayer').style.display = 'block';
+        }
+
+        // 点击全屏图片本身：退出图片查看
+        function closeImageFullscreen() {
+            document.getElementById('fullscreenImageLayer').style.display = 'none';
+            // 如果想在关闭图片的同时连带退出浏览器的全屏模式，可以把下面这段取消注释：
+            /*
+            if (document.exitFullscreen) { document.exitFullscreen(); }
+            else if (document.mozCancelFullScreen) { document.mozCancelFullScreen(); }
+            else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            */
+        }
+
+        // 监听系统的 ESC 键：如果用户按 ESC 退出了系统全屏，也同步隐藏图片层
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.getElementById('fullscreenImageLayer').style.display = 'none';
+            }
+        });
+        document.addEventListener('webkitfullscreenchange', () => {
+            if (!document.webkitIsFullScreen) {
+                document.getElementById('fullscreenImageLayer').style.display = 'none';
+            }
+        });
+
+        // 下载触发函数
+        function triggerDownload() {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = 'nihaixia_materials.zip'; 
+            downloadLink.download = '倪海厦_天纪_人纪_笔记_书籍.zip'; 
+            
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+</body>
+</html>
+
